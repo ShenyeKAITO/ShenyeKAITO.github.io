@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>已加入烬城 · 消失的对皮？</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/game-state.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #0d0d12;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 16px;
+      animation: fadeIn 1s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      max-width: 480px;
+      width: 100%;
+      background: linear-gradient(145deg, #1a1a24, #12121a);
+      border: 1px solid #2a2a3a;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      text-align: center;
+      padding: 48px 32px;
+    }
+
+    .icon {
+      font-size: 56px;
+      margin-bottom: 20px;
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #e8d5a3;
+      letter-spacing: 4px;
+      margin-bottom: 8px;
+    }
+
+    .sub {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 24px;
+    }
+
+    .desc {
+      font-size: 14px;
+      color: #999;
+      line-height: 1.8;
+      margin-bottom: 32px;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 32px;
+      background: #e8d5a3;
+      color: #12121a;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .btn:hover {
+      background: #d4c08f;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🌆</div>
+    <div class="title">欢迎来到烬城</div>
+    <div class="sub">你已成功加入 · 推荐人：A</div>
+    <div class="desc">
+      档案馆的旧地图上<br>
+      又多了一个名字。<br><br>
+      记住——<br>
+      看到蓝色，跑。
+    </div>
+    <button class="btn" onclick="window.open('jincheng_chat.html', '_blank')">进入群聊</button>
+  </div>
+
+  <script>
+    GameState.init();
+  </script>
+</body>
+</html>

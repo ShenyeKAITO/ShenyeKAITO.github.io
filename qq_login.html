@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>关联QQ号 · 消失的对皮？</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/game-state.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #1e1e2e;
+      font-family: var(--font-main);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .window-frame {
+      width: 100%;
+      max-width: 420px;
+      min-height: 520px;
+      background: #fff;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 60px rgba(0,0,0,0.5);
+    }
+
+    /* ===== 顶部 ===== */
+    .header {
+      background: #f8f8f8;
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid #e8e8e8;
+      text-align: center;
+    }
+
+    .header .icon {
+      font-size: 40px;
+      margin-bottom: 8px;
+    }
+
+    .header .title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .header .subtitle {
+      font-size: 13px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    /* ===== 表单 ===== */
+    .form-area {
+      flex: 1;
+      padding: 28px 28px 20px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 6px;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1px solid #d0d0d0;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: var(--font-main);
+      outline: none;
+      transition: border 0.2s;
+      background: #fafafa;
+    }
+
+    .form-group input:focus {
+      border-color: #2196F3;
+      background: #fff;
+    }
+
+    .form-group input::placeholder {
+      color: #bbb;
+    }
+
+    .form-group .error-hint {
+      font-size: 12px;
+      color: #e94560;
+      margin-top: 6px;
+      display: none;
+    }
+
+    .form-group .error-hint.visible {
+      display: block;
+    }
+
+    /* ===== 登录按钮 ===== */
+    .login-btn {
+      width: 100%;
+      padding: 13px 0;
+      background: #2196F3;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: var(--font-main);
+      cursor: pointer;
+      transition: background 0.2s;
+      font-weight: 500;
+      letter-spacing: 2px;
+    }
+
+    .login-btn:hover {
+      background: #1976D2;
+    }
+
+    .login-btn:disabled {
+      background: #ddd;
+      cursor: not-allowed;
+    }
+
+    /* ===== 底部 ===== */
+    .footer {
+      padding: 12px 28px 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #bbb;
+    }
+  </style>
+</head>
+<body>
+  <div class="window-frame">
+    <div class="header">
+      <div class="icon">🔗</div>
+      <div class="title">关联QQ号</div>
+      <div class="subtitle">输入账号密码登录以查看关联信息</div>
+    </div>
+
+    <div class="form-area">
+      <!-- 账号 -->
+      <div class="form-group">
+        <label>QQ账号</label>
+        <input type="text" id="qqAccount" placeholder="请输入QQ号" autocomplete="off">
+      </div>
+
+      <!-- 密码 -->
+      <div class="form-group">
+        <label>密码</label>
+        <input type="password" id="qqPassword" placeholder="请输入密码" autocomplete="off">
+        <div class="error-hint" id="errorHint">❌ 账号或密码错误，请重试</div>
+      </div>
+
+      <button class="login-btn" id="loginBtn" onclick="handleLogin()">登 录</button>
+    </div>
+
+    <div class="footer">
+      使用此功能将登录关联的QQ账号
+    </div>
+  </div>
+
+  <script>
+    GameState.init();
+
+    // ===== 预设账号密码 =====
+    const CORRECT_ACCOUNT = '3048627159037';
+    const CORRECT_PASSWORD = '31241142';
+
+    // ===== 页面加载 =====
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('qqPassword').focus();
+    });
+
+    // ===== 登录逻辑 =====
+    function handleLogin() {
+      const account = document.getElementById('qqAccount').value.trim();
+      const password = document.getElementById('qqPassword').value.trim();
+      const errorHint = document.getElementById('errorHint');
+
+      if (!account || !password) {
+        errorHint.textContent = '❌ 请输入账号和密码';
+        errorHint.classList.add('visible');
+        return;
+      }
+
+      if (account === CORRECT_ACCOUNT && password === CORRECT_PASSWORD) {
+        // 登录成功
+        errorHint.classList.remove('visible');
+        GameState.set('qqLoggedIn', true);
+        GameState.unlockPage('others_message_list');
+        GameState.unlockPage('others_chat');
+        GameState.unlockPage('others_qzone');
+        GameState.unlockPage('netease_music');
+
+        window.open('others_message_list.html', '_blank');
+      } else {
+        // 登录失败
+        errorHint.textContent = '❌ 账号或密码错误，请重试';
+        errorHint.classList.add('visible');
+        GameState.set('passwordAttempts', (GameState.get('passwordAttempts') || 0) + 1);
+      }
+    }
+
+    // 回车登录
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleLogin();
+    });
+  </script>
+</body>
+</html>

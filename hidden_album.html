@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>隐藏相册 · 消失的对皮？</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/game-state.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #e8eaed;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px 12px 60px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .feed-container {
+      max-width: 780px;
+      width: 100%;
+    }
+
+    .top-bar {
+      background: #fff;
+      border-radius: 12px 12px 0 0;
+      padding: 16px 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .top-bar .title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .feed-item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px 18px 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .feed-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .feed-header .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .feed-header .info {
+      flex: 1;
+    }
+
+    .feed-header .info .name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .feed-header .info .time {
+      font-size: 11px;
+      color: #bbb;
+      margin-top: 2px;
+    }
+
+    .feed-body {
+      padding-left: 50px;
+    }
+
+    .feed-body .text {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .feed-body .text a {
+      color: #2196F3;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .feed-body .text a:hover {
+      text-decoration: underline;
+    }
+
+    .feed-body .photo-img {
+      max-width: 260px;
+      width: 100%;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .feed-actions {
+      display: flex;
+      gap: 20px;
+      font-size: 12px;
+      color: #bbb;
+      padding: 8px 0 4px;
+      border-top: 1px solid #f0f2f5;
+      margin-top: 8px;
+    }
+
+    .feed-actions span {
+      cursor: pointer;
+    }
+
+    .feed-actions span:hover {
+      color: #07C160;
+    }
+  </style>
+</head>
+<body>
+  <div class="feed-container">
+    <div class="top-bar">
+      <span class="title">📱 QQ空间</span>
+    </div>
+
+    <div class="feed-item">
+      <div class="feed-header">
+        <div class="avatar" style="background-image:url('shared/avatar.png');"></div>
+        <div class="info">
+          <div class="name">谢砚</div>
+          <div class="time">5月19日 22:14</div>
+        </div>
+      </div>
+      <div class="feed-body">
+        <div class="text">
+          听起这首歌就会想起你
+          <a href="netease_private.html" target="_blank">一起听……</a>
+        </div>
+        <img class="photo-img" src="7.jpg" alt="photo">
+      </div>
+      <div class="feed-actions">
+        <span>❤️ 34</span>
+        <span>💬 7</span>
+        <span>📤 转发</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    GameState.init();
+    GameState.addClue('hidden_album_opened');
+  </script>
+</body>
+</html>

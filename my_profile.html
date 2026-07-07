@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>我的资料卡 · 消失的对皮？</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/game-state.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px 16px 50px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .profile-card {
+      max-width: 500px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+    }
+
+    /* ===== 封面 ===== */
+    .cover-section {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      background: url('shared/cover.jpg') center 30% / cover no-repeat;
+    }
+
+    .cover-section::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.45));
+      pointer-events: none;
+    }
+
+    /* ===== 头像 ===== */
+    .avatar-wrapper {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: center;
+      margin-top: -52px;
+    }
+
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 4px solid #ffffff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+      background-size: cover;
+      background-position: center;
+      background-image: url('shared/my-avatar.jpg');
+      transition: transform 0.25s ease;
+      cursor: pointer;
+    }
+
+    .avatar:hover {
+      transform: scale(1.06);
+    }
+
+    /* ===== 基本信息 ===== */
+    .info-section {
+      text-align: center;
+      padding: 14px 24px 0;
+    }
+
+    .info-name-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nickname {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .vip-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: linear-gradient(135deg, #f5d77b 0%, #e8b93a 100%);
+      color: #7a5802;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 10px 2px 8px;
+      border-radius: 12px;
+    }
+
+    .level-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      background: #f0f2f5;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+      color: #666;
+    }
+
+    .level-badge .lv-dot {
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+    }
+    .lv-dot.lv-s { background: #45b7d1; }
+    .lv-dot.lv-m { background: #f0ad4e; }
+    .lv-dot.lv-sun { background: #d9534f; }
+
+    .qq-number {
+      font-size: 13px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    /* ===== 个性签名 ===== */
+    .signature-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 0 24px;
+    }
+
+    .signature-text {
+      font-size: 14px;
+      color: #666;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .signature-text:hover {
+      color: #2196F3;
+    }
+    .signature-text::before {
+      content: '「';
+      color: #ccc;
+      font-size: 16px;
+    }
+    .signature-text::after {
+      content: '」';
+      color: #ccc;
+      font-size: 16px;
+    }
+
+    /* ===== 统计 ===== */
+    .stats-section {
+      display: flex;
+      justify-content: center;
+      margin: 16px 24px 0;
+      padding: 14px 0;
+      border-top: 1px solid #f0f2f5;
+      border-bottom: 1px solid #f0f2f5;
+    }
+
+    .stat-item {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .stat-item + .stat-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10%;
+      height: 80%;
+      width: 1px;
+      background: #f0f2f5;
+    }
+
+    .stat-number {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    /* ===== 详细资料 ===== */
+    .detail-section {
+      padding: 16px 24px 0;
+    }
+
+    .detail-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 16px;
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #555;
+      padding: 6px 0;
+    }
+
+    .detail-item .label {
+      color: #999;
+      flex-shrink: 0;
+    }
+
+    .detail-item .value {
+      color: #333;
+    }
+
+    /* ===== 兴趣标签 ===== */
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f0f2f5;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #f0f8f4;
+      color: #07C160;
+      font-size: 12px;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    /* ===== 勋章 ===== */
+    .medal-section {
+      padding: 16px 24px 0;
+    }
+
+    .medal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .medal-header h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .medal-list {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f0f2f5;
+    }
+
+    .medal {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+      font-size: 18px;
+      cursor: default;
+      transition: transform 0.2s;
+    }
+
+    .medal:hover {
+      transform: scale(1.12);
+    }
+
+    .medal[data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0,0,0,0.78);
+      color: #fff;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    /* ===== 底部按钮 ===== */
+    .space-btn-section {
+      padding: 16px 24px 24px;
+    }
+
+    .space-btn {
+      display: block;
+      width: 100%;
+      padding: 12px 0;
+      background: #2196F3;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      letter-spacing: 0.5px;
+    }
+
+    .space-btn:hover {
+      background: #1976D2;
+    }
+
+    .space-btn:active {
+      transform: scale(0.97);
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 0; }
+      .cover-section { height: 180px; }
+      .detail-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-card">
+
+    <!-- 封面 -->
+    <div class="cover-section"></div>
+
+    <!-- 头像 -->
+    <div class="avatar-wrapper">
+      <div class="avatar"></div>
+    </div>
+
+    <!-- 基本信息 -->
+    <div class="info-section">
+      <div class="info-name-row">
+        <span class="nickname">沈屿</span>
+        <span class="vip-badge">✦ VIP6</span>
+        <span class="level-badge">
+          <span class="lv-dot lv-sun"></span>
+          <span class="lv-dot lv-sun"></span>
+          <span class="lv-dot lv-m"></span>
+          <span class="lv-dot lv-s"></span>
+          <span style="margin-left:4px;">LV.68</span>
+        </span>
+      </div>
+      <div class="qq-number">QQ：3048726159028</div>
+    </div>
+
+    <!-- 个性签名 -->
+    <div class="signature-section">
+      <span class="signature-text" onclick="window.open('my_signatures.html', '_blank')">我還想和你談論宇宙和天空</span>
+    </div>
+
+    <!-- 统计 -->
+    <div class="stats-section">
+      <div class="stat-item">
+        <div class="stat-number">26w+</div>
+        <div class="stat-label">空间访问</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">100w+</div>
+        <div class="stat-label">获赞</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">1948</div>
+        <div class="stat-label">好友</div>
+      </div>
+    </div>
+
+    <!-- 详细资料 -->
+    <div class="detail-section">
+      <div class="detail-section-title">详细资料</div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">性别</span>
+          <span class="value">女</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">生日</span>
+          <span class="value">02月07日</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">年龄</span>
+          <span class="value">21岁</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">所在地</span>
+          <span class="value">蔚城 · 星湖街道</span>
+        </div>
+      </div>
+
+      <div class="tags-row">
+        <span class="tag">BLC</span>
+        <span class="tag">语擦</span>
+        <span class="tag">原耽</span>
+        <span class="tag">写文</span>
+        <span class="tag">熬夜</span>
+      </div>
+    </div>
+
+    <!-- 勋章 -->
+    <div class="medal-section">
+      <div class="medal-header">
+        <h3>🏅 我的勋章</h3>
+      </div>
+      <div class="medal-list">
+        <div class="medal" data-tip="语擦达人">🎭</div>
+        <div class="medal" data-tip="签到王者">📅</div>
+        <div class="medal" data-tip="活跃之星">⭐</div>
+        <div class="medal" data-tip="年度会员">👑</div>
+        <div class="medal" data-tip="社交达人">💬</div>
+      </div>
+    </div>
+
+    <!-- 按钮 -->
+    <div class="space-btn-section">
+      <button class="space-btn" onclick="window.open('my_qzone.html', '_blank')">
+        进入我的QQ空间
+      </button>
+    </div>
+  </div>
+
+  <script>
+    GameState.init();
+  </script>
+</body>
+</html>

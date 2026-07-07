@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QQ空间 · 消失的对皮？</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/game-state.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #e8eaed;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px 12px 60px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .feed-container {
+      max-width: 780px;
+      width: 100%;
+    }
+
+    .top-bar {
+      background: #fff;
+      border-radius: 12px 12px 0 0;
+      padding: 16px 18px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .top-bar .title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .top-bar .my-link {
+      font-size: 13px;
+      color: #2196F3;
+      cursor: pointer;
+    }
+
+    .feed-item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 18px 18px 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .feed-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .feed-header .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .feed-header .avatar.name-avatar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .feed-header .info { flex: 1; }
+
+    .feed-header .info .name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .feed-header .info .time {
+      font-size: 11px;
+      color: #bbb;
+      margin-top: 2px;
+    }
+
+    .feed-body { padding-left: 50px; }
+
+    .feed-body .text {
+      font-size: 14px;
+      color: #444;
+      line-height: 1.7;
+      margin-bottom: 10px;
+    }
+
+    .feed-body .share-card {
+      background: #f8f9fc;
+      border: 1px solid #e8eaef;
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .feed-body .share-card:hover { background: #f0f2f5; }
+
+    .feed-body .share-card .share-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .feed-body .share-card .share-desc {
+      font-size: 13px;
+      color: #888;
+      line-height: 1.6;
+    }
+
+    .feed-body .share-card .share-source {
+      font-size: 11px;
+      color: #2196F3;
+      margin-top: 4px;
+    }
+
+    .feed-actions {
+      display: flex;
+      gap: 20px;
+      font-size: 12px;
+      color: #bbb;
+      padding: 8px 0 4px;
+      border-top: 1px solid #f0f2f5;
+      margin-top: 8px;
+    }
+
+    .feed-actions span { cursor: pointer; }
+    .feed-actions span:hover { color: #07C160; }
+
+    .feed-comments {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #f0f2f5;
+      font-size: 13px;
+    }
+
+    .feed-comments .comment { padding: 4px 0; color: #666; }
+    .feed-comments .comment .cname { color: #2196F3; font-weight: 500; }
+
+    /* ===== 标签导航 ===== */
+    .tab-bar {
+      display: flex;
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .tab-bar .tab {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      font-size: 14px;
+      color: #888;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    .tab-bar .tab:hover { color: #333; }
+
+    .tab-bar .tab.active {
+      color: #2196F3;
+      font-weight: 600;
+    }
+
+    .tab-bar .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 24px;
+      height: 3px;
+      background: #2196F3;
+      border-radius: 2px;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .bottom-nav {
+      display: flex;
+      background: #fff;
+      border-radius: 0 0 12px 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+
+    .bottom-nav .nav-item {
+      flex: 1;
+      text-align: center;
+      padding: 10px 0;
+      font-size: 11px;
+      color: #999;
+      cursor: pointer;
+    }
+
+    .bottom-nav .nav-item.active { color: #2196F3; }
+
+    .bottom-nav .nav-item .nav-icon { font-size: 18px; display: block; margin-bottom: 2px; }
+
+    @media (max-width: 480px) {
+      body { padding: 0; }
+      .feed-container { border-radius: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="feed-container">
+    <!-- 顶部 -->
+    <div class="top-bar">
+      <span class="title">📱 QQ空间</span>
+      <span class="my-link" onclick="window.open('qzone.html', '_blank')">我的空间 ›</span>
+    </div>
+
+    <!-- 标签导航 -->
+    <div class="tab-bar">
+      <div class="tab active" data-tab="feed" onclick="switchTab('feed')">📝 动态</div>
+      <div class="tab" data-tab="board" onclick="switchTab('board')">💬 留言板</div>
+      <div class="tab" data-tab="album" onclick="switchTab('album')">📷 相册</div>
+      <div class="tab" data-tab="music" onclick="switchTab('music')">🎵 音乐</div>
+    </div>
+
+    <!-- ===== 动态 tab ===== -->
+    <div class="tab-content active" id="tab-feed">
+
+    <!-- 说说1：空友A转发科普贴 -->
+    <div class="feed-item">
+      <div class="feed-header">
+        <div class="avatar name-avatar" style="background:#3d3d3d;"></div>
+        <div class="info">
+          <div class="name">空友A</div>
+          <div class="time">6月15日 19:42</div>
+        </div>
+      </div>
+      <div class="feed-body">
+        <div class="text">拿波比奥斯方阵加密好浪漫啊</div>
+        <div class="share-card" onclick="window.open('polybius_article.html', '_blank')">
+          <div class="share-title">波比奥斯方阵密码科普</div>
+          <div class="share-desc">一种经典的棋盘式密码，将字母排列成方阵，通过坐标来加密信息……</div>
+          <div class="share-source">来自 🔗 科普中国</div>
+        </div>
+      </div>
+      <div class="feed-actions">
+        <span>❤️ 15</span><span>💬 3</span><span>📤 转发</span>
+      </div>
+      <div class="feed-comments">
+        <div class="comment"><span class="cname">谢砚</span>：这个确实好有意思！很适合拿来做密码</div>
+      </div>
+    </div>
+
+    <!-- 说说2：空友B反818 -->
+    <div class="feed-item">
+      <div class="feed-header">
+        <div class="avatar name-avatar" style="background:#d63031;"></div>
+        <div class="info">
+          <div class="name">空友B</div>
+          <div class="time">6月10日 16:27</div>
+        </div>
+      </div>
+      <div class="feed-body">
+        <div class="text">反818<br><br>宝妈还好意思奔现？有转抽<br><br>苦主：小B<br>我和小A奔现的事情不过多赘述了，刚刚见面时候看见一个150左右的女人有点失望，毕竟她谎称自己有165！由于我当时很喜欢她，觉得也没关系。但是那天我实在很生气，在她洗澡时候，看她的手机，我居然发现她已经有老公还有孩子了！小A 还说自己只是形婚生孩子，没有感情，我实在生气，而且我也没有打她，是她咬了我好几下，我忍不住才反击了，但是因为我一直健身可能没有收住力气。我小B发誓从来没有主动去打她！</div>
+      </div>
+      <div class="feed-actions">
+        <span>❤️ 3,028</span><span>💬 738</span><span>📤 转发 7,374</span>
+      </div>
+      <div class="feed-comments">
+        <div class="comment"><span class="cname">谢砚</span>：中奖了，好幸运</div>
+      </div>
+    </div>
+
+    </div><!-- /tab-feed -->
+
+    <!-- ===== 留言板 tab ===== -->
+    <div class="tab-content" id="tab-board">
+      <div style="background:#fff;border-radius:12px;padding:30px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);min-height:300px;">
+        <div style="font-size:15px;font-weight:600;color:#333;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0f2f5;">💬 留言板</div>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid #f5f5f5;">
+          <div style="width:40px;height:40px;border-radius:50%;background:#002FA7;flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="font-size:13px;color:#666;margin-bottom:4px;"><span style="color:#2196F3;font-weight:600;">谢砚亲友</span></div>
+            <div style="font-size:14px;color:#333;line-height:1.6;">你去哪了？？几天找不见人了</div>
+            <div style="font-size:11px;color:#ccc;margin-top:6px;">6月28日 09:15</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;border-bottom:1px solid #f5f5f5;">
+          <div style="width:40px;height:40px;border-radius:50%;background-image:url('shared/my-avatar.jpg');background-size:cover;background-position:center;flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="font-size:13px;color:#666;margin-bottom:4px;"><span style="color:#2196F3;font-weight:600;">沈屿</span></div>
+            <div style="font-size:14px;color:#333;line-height:1.6;">❤️</div>
+            <div style="font-size:11px;color:#ccc;margin-top:6px;">6月27日 23:15</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:16px 0;">
+          <div style="width:40px;height:40px;border-radius:50%;background-image:url('6.png');background-size:cover;background-position:center;flex-shrink:0;"></div>
+          <div style="flex:1;">
+            <div style="font-size:13px;color:#666;margin-bottom:4px;"><span style="color:#2196F3;font-weight:600;">惡犬</span></div>
+            <div style="font-size:14px;color:#333;line-height:1.6;">我们的爱堆砌在谎言之上。</div>
+            <div style="font-size:11px;color:#ccc;margin-top:6px;">6月26日 18:20</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-board -->
+
+    <!-- ===== 相册 tab ===== -->
+    <div class="tab-content" id="tab-album">
+      <div style="background:#fff;border-radius:12px;padding:30px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);min-height:300px;">
+        <div style="font-size:15px;font-weight:600;color:#333;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0f2f5;">📷 相册</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;">
+          <div style="aspect-ratio:1;background:linear-gradient(135deg,#dfe6e9,#b2bec3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;">🖼️</div>
+          <div style="aspect-ratio:1;background:linear-gradient(135deg,#ffeaa7,#fdcb6e);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:28px;">🌅</div>
+          <!-- 隐藏相册 -->
+          <div id="hiddenAlbum" onclick="openHiddenAlbum()" style="grid-column:span 2;aspect-ratio:2/1;background:linear-gradient(135deg,#2d3436,#636e72);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:32px;cursor:pointer;gap:10px;transition:box-shadow 0.3s, opacity 0.2s;opacity:0.6;box-shadow:0 0 20px rgba(100,100,255,0.15);" onmouseover="this.style.opacity=0.9;this.style.boxShadow='0 0 40px rgba(100,100,255,0.4)'" onmouseout="this.style.opacity=0.6;this.style.boxShadow='0 0 20px rgba(100,100,255,0.15)'">🔒 <span style="font-size:14px;color:rgba(255,255,255,0.6);">隐藏相册</span></div>
+        </div>
+      </div>
+    </div><!-- /tab-album -->
+
+    <!-- ===== 隐藏相册密码弹窗 ===== -->
+    <div id="hiddenAlbumModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);z-index:9999;justify-content:center;align-items:center;backdrop-filter:blur(4px);" onclick="if(event.target===this)closeHiddenAlbum()">
+      <div style="background:#fff;border-radius:16px;padding:30px 24px;max-width:340px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.3);animation:fadeIn 0.3s ease;" onclick="event.stopPropagation()">
+        <div style="font-size:28px;margin-bottom:12px;">🔒</div>
+        <div style="font-size:18px;font-weight:600;color:#333;margin-bottom:6px;">隐藏相册</div>
+        <div style="font-size:14px;color:#999;margin-bottom:20px;">回答问题即可解锁</div>
+        <div style="font-size:15px;color:#555;margin-bottom:16px;font-weight:500;">想你</div>
+        <input id="hiddenAlbumAnswer" type="text" style="width:100%;padding:10px 14px;border:1px solid #e0e0e0;border-radius:10px;font-size:15px;font-family:inherit;outline:none;text-align:center;box-sizing:border-box;" placeholder="输入回答…" autocomplete="off">
+        <div style="display:flex;gap:10px;margin-top:14px;">
+          <button onclick="closeHiddenAlbum()" style="flex:1;padding:10px;border:none;border-radius:10px;background:#f0f0f0;font-size:14px;font-family:inherit;cursor:pointer;color:#666;">取消</button>
+          <button onclick="checkHiddenAlbum()" style="flex:1;padding:10px;border:none;border-radius:10px;background:#2196F3;font-size:14px;font-family:inherit;cursor:pointer;color:#fff;font-weight:500;">解锁</button>
+        </div>
+        <div id="hiddenAlbumError" style="font-size:13px;color:#e94560;margin-top:10px;display:none;"></div>
+      </div>
+    </div>
+
+    <!-- ===== 隐藏相册内容弹窗 ===== -->
+    <div id="hiddenAlbumContent" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:9999;justify-content:center;align-items:center;backdrop-filter:blur(4px);" onclick="if(event.target===this)closeHiddenContent()">
+      <div style="background:#fff;border-radius:16px;padding:24px;max-width:400px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.3);animation:fadeIn 0.3s ease;max-height:80vh;overflow-y:auto;" onclick="event.stopPropagation()">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0f2f5;">
+          <span style="font-size:16px;font-weight:600;color:#333;">📁 隐藏相册</span>
+          <span onclick="closeHiddenContent()" style="font-size:20px;color:#999;cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:50%;transition:background 0.2s;" onmouseover="this.style.background='#f0f0f0'" onmouseout="this.style.background='transparent'">✕</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
+          <div style="aspect-ratio:1;background:linear-gradient(135deg,#dfe6e9,#b2bec3);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;">📸</div>
+          <div style="aspect-ratio:1;background:linear-gradient(135deg,#ffeaa7,#fdcb6e);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;">🎞️</div>
+          <div style="aspect-ratio:1;background:linear-gradient(135deg,#fab1a0,#e17055);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;">📖</div>
+          <div style="aspect-ratio:1;background:linear-gradient(135deg,#a29bfe,#6c5ce7);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;">💌</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 音乐 tab ===== -->
+    <div class="tab-content" id="tab-music">
+      <div style="background:#fff;border-radius:12px;padding:30px 20px;box-shadow:0 1px 4px rgba(0,0,0,0.06);min-height:300px;">
+        <div style="font-size:15px;font-weight:600;color:#333;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #f0f2f5;">🎵 音乐</div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;">
+          <div style="width:48px;height:48px;border-radius:6px;background:linear-gradient(135deg,#fab1a0,#e17055);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;color:#fff;">▶</div>
+          <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#333;">Liar</div><div style="font-size:12px;color:#999;">ONE OK ROCK</div></div>
+          <div style="font-size:12px;color:#bbb;">❤️</div>
+        </div>
+      </div>
+    </div><!-- /tab-music -->
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+      <div class="nav-item" onclick="window.open('others_message_list.html', '_blank')">
+        <span class="nav-icon">💬</span>
+        消息
+      </div>
+      <div class="nav-item active">
+        <span class="nav-icon">📱</span>
+        空间
+      </div>
+      <div class="nav-item" style="cursor:default;">
+        <span class="nav-icon">👤</span>
+        联系人
+      </div>
+      <div class="nav-item" onclick="window.open('profile.html', '_blank')">
+        <span class="nav-icon">☰</span>
+        资料
+      </div>
+    </div>
+  </div>
+
+  <script>
+    GameState.init();
+
+    function switchTab(tabName) {
+      document.querySelectorAll('.tab-bar .tab').forEach(t => t.classList.remove('active'));
+      document.querySelector('.tab-bar .tab[data-tab="' + tabName + '"]').classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+      document.getElementById('tab-' + tabName).classList.add('active');
+    }
+
+    // ===== 隐藏相册 =====
+    function openHiddenAlbum() {
+      document.getElementById('hiddenAlbumModal').style.display = 'flex';
+      document.getElementById('hiddenAlbumAnswer').value = '';
+      document.getElementById('hiddenAlbumError').style.display = 'none';
+      document.getElementById('hiddenAlbumAnswer').focus();
+    }
+
+    function closeHiddenAlbum() {
+      document.getElementById('hiddenAlbumModal').style.display = 'none';
+    }
+
+    function closeHiddenContent() {
+      document.getElementById('hiddenAlbumContent').style.display = 'none';
+    }
+
+    function checkHiddenAlbum() {
+      const answer = document.getElementById('hiddenAlbumAnswer').value.trim();
+      const errorEl = document.getElementById('hiddenAlbumError');
+
+      if (answer === '惡犬') {
+        closeHiddenAlbum();
+        window.open('hidden_album.html', '_blank');
+        GameState.addClue('hidden_album_unlocked');
+        return;
+      }
+      errorEl.style.display = 'block';
+      errorEl.textContent = '她的名字。';
+      document.getElementById('hiddenAlbumAnswer').focus();
+    }
+
+    // 回车键提交
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && document.getElementById('hiddenAlbumModal').style.display === 'flex') {
+        checkHiddenAlbum();
+      }
+    });
+  </script>
+</body>
+</html>

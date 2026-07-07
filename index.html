@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>消失的对皮？</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/game-state.js"></script>
+  <style>
+    /* ===== 标题页专属样式 ===== */
+    .page-index {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #0d0d1a;
+      position: relative;
+      overflow: hidden;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    /* ===== 内容区 ===== */
+    .content {
+      max-width: 600px;
+    }
+
+    /* ===== 标题 ===== */
+    .title {
+      font-size: 52px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 48px;
+      letter-spacing: 6px;
+    }
+
+    /* ===== 简介 ===== */
+    .intro {
+      font-size: 16px;
+      line-height: 2;
+      color: var(--text-secondary);
+      margin-bottom: 48px;
+      padding: 0 20px;
+    }
+
+    /* ===== 开始按钮 ===== */
+    .btn-start {
+      background: #e94560;
+      color: #fff;
+      padding: 16px 60px;
+      font-size: 20px;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      letter-spacing: 4px;
+    }
+
+    .btn-start:hover {
+      background: #ff6b81;
+      transform: translateY(-2px);
+    }
+
+    .btn-start:active {
+      transform: translateY(0);
+    }
+
+    /* ===== 小提示 ===== */
+    .hint {
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 480px) {
+      .title { font-size: 36px; letter-spacing: 4px; }
+      .title-sub { font-size: 13px; letter-spacing: 4px; }
+      .intro { font-size: 14px; }
+      .btn-start { padding: 14px 40px; font-size: 17px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-index">
+    <!-- 内容 -->
+    <div class="content">
+      <h1 class="title">消失的对皮？</h1>
+      <div class="intro">
+        <p>你是一个大三学生，沉迷于blc的语擦女。</p>
+        <p>最近好不容易d到一个随时在线的对皮，</p>
+        <p>一切都很顺利。</p>
+        <p>&nbsp;</p>
+        <p>直到上周，她说有点事，下线后再也没出现过。</p>
+        <p>&nbsp;</p>
+        <p>她到底去了哪里？</p>
+      </div>
+
+      <button class="btn-start" onclick="startGame()">开始游戏</button>
+    </div>
+  </div>
+
+  <script>
+    // ===== 开始游戏 =====
+    function startGame() {
+      GameState.init();
+
+      if (!GameState.get('gameStarted')) {
+        GameState.set('gameStarted', true);
+        GameState.unlockPage('chat_private');
+      }
+
+      // 打开私聊页面
+      window.open('chat_private.html', '_blank');
+    }
+  </script>
+</body>
+</html>

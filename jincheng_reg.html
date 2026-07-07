@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>烬城 · 入市登记 · 消失的对皮？</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/game-state.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #0d0d12;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 16px 60px;
+      animation: fadeIn 0.8s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      max-width: 560px;
+      width: 100%;
+      background: linear-gradient(145deg, #1a1a24, #12121a);
+      border: 1px solid #2a2a3a;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    }
+
+    .card-header {
+      padding: 28px 28px 16px;
+      text-align: center;
+      border-bottom: 1px solid #2a2a3a;
+    }
+
+    .card-header .city-name {
+      font-size: 28px;
+      font-weight: 700;
+      color: #e8d5a3;
+      letter-spacing: 6px;
+    }
+
+    .card-header .city-sub {
+      font-size: 13px;
+      color: #666;
+      margin-top: 6px;
+      letter-spacing: 2px;
+    }
+
+    .card-body {
+      padding: 24px 28px;
+    }
+
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section .label {
+      font-size: 11px;
+      color: #e8d5a3;
+      font-weight: 600;
+      letter-spacing: 2px;
+      margin-bottom: 8px;
+      opacity: 0.7;
+    }
+
+    .section .value {
+      font-size: 14px;
+      color: #ccc;
+      line-height: 1.8;
+    }
+
+    .section .value .highlight {
+      color: #e8d5a3;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(to right, transparent, #2a2a3a, transparent);
+      margin: 20px 0;
+    }
+
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      font-size: 11px;
+      color: #888;
+      border: 1px solid #333;
+      padding: 3px 10px;
+      border-radius: 12px;
+    }
+
+    .reg-number {
+      font-size: 18px;
+      font-weight: 700;
+      color: #e8d5a3;
+      letter-spacing: 1px;
+      text-align: center;
+      padding: 16px 0;
+    }
+
+    .card-footer {
+      padding: 16px 28px 24px;
+      text-align: center;
+      border-top: 1px solid #2a2a3a;
+      font-size: 12px;
+      color: #555;
+    }
+
+    /* ===== 输入框 ===== */
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 10px;
+    }
+
+    .input-row input {
+      flex: 1;
+      max-width: 180px;
+      padding: 10px 14px;
+      border: 1px solid #333;
+      border-radius: 8px;
+      background: #0d0d12;
+      color: #e8d5a3;
+      font-size: 15px;
+      font-family: inherit;
+      outline: none;
+    }
+
+    .input-row input::placeholder {
+      color: #555;
+    }
+
+    .input-row .join-btn {
+      padding: 10px 20px;
+      background: #e8d5a3;
+      color: #12121a;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .input-row .join-btn:hover {
+      background: #d4c08f;
+    }
+
+    .input-row .join-btn:disabled {
+      background: #333;
+      color: #666;
+      cursor: not-allowed;
+    }
+
+    .error-msg {
+      text-align: center;
+      font-size: 12px;
+      color: #e74c3c;
+      margin-top: 8px;
+      display: none;
+    }
+
+    .error-msg.visible {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="card-header">
+      <div class="city-name">烬城</div>
+      <div class="city-sub">ASH CITY · ABO 世界观新群</div>
+    </div>
+
+    <div class="card-body">
+      <div class="section">
+        <div class="label">▎世界背景</div>
+        <div class="value">
+          档案馆里旧地图写着古老文字，但没人读得懂，大家只叫它烬城。<br><br>
+          北区在上面。整洁街道，截然有序。空气里飘着一种淡淡的味道，说不清是什么，像消毒水和某种植物的混合体。新来的人总觉得这味道有点空，住久了就闻不出来了。<br><br>
+          南区在下面。北区的废水从管道里灌下来，汇成条发光的河。河边挤着铁皮和旧厂房，风穿过去的时候带着血腥气。枪声有时响，有时不响，没人会抬头看。<br><br>
+          最底下是下水道。连南区的人都不愿往那靠。那里什么人都有，墙壁上画满褪色的涂鸦，大部分是骂北区的话。<br><br>
+          对了，议会卫队的制服是深蓝的。<br>
+          看到蓝色，跑。
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section">
+        <div class="label">▎群规则</div>
+        <div class="tag-list">
+          <span class="tag">#无审无设</span>
+          <span class="tag">#现原blc</span>
+          <span class="tag">#禁反串</span>
+          <span class="tag">#婉拒三个月亮以下</span>
+          <span class="tag">#拒白</span>
+          <span class="tag">#可1vn</span>
+          <span class="tag">#不禁黑职</span>
+          <span class="tag">#高职有审</span>
+        </div>
+        <div class="value" style="margin-top:10px;">
+          卡皮下女18+不要谎报！被查出全平台拉黑。
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="section">
+        <div class="label">▎入市登记处</div>
+        <div class="value" style="text-align:center;margin-bottom:8px;">输入推荐人ID加入</div>
+        <div class="input-row">
+          <input type="text" id="referralInput" placeholder="输入推荐人ID" autocomplete="off">
+          <button class="join-btn" id="joinBtn" onclick="handleJoin()">加入</button>
+        </div>
+        <div class="error-msg" id="errorMsg">❌ 推荐人ID不正确，请重试</div>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      申请入群请备注推荐人ID
+    </div>
+  </div>
+
+  <script>
+    GameState.init();
+
+    function handleJoin() {
+      const input = document.getElementById('referralInput').value.trim();
+      const errorMsg = document.getElementById('errorMsg');
+
+      if (input === 'A') {
+        errorMsg.classList.remove('visible');
+        GameState.addClue('joined_jincheng');
+        window.open('jincheng_joined.html', '_blank');
+      } else {
+        errorMsg.classList.add('visible');
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleJoin();
+    });
+  </script>
+</body>
+</html>

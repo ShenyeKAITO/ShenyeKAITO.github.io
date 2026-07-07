@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>波比奥斯方阵密码科普 · 消失的对皮？</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/game-state.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f5f5f0;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 16px 60px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .article {
+      max-width: 680px;
+      width: 100%;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .article-header {
+      padding: 30px 32px 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .article-header .source {
+      font-size: 12px;
+      color: #2196F3;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .article-header h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .article-header .meta {
+      font-size: 13px;
+      color: #999;
+    }
+
+    .article-body {
+      padding: 24px 32px 32px;
+      font-size: 16px;
+      color: #333;
+      line-height: 1.9;
+    }
+
+    .article-body p {
+      margin-bottom: 18px;
+      text-indent: 2em;
+    }
+
+    .article-body .info-box {
+      background: #f8f9fc;
+      border-left: 4px solid #2196F3;
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 18px;
+    }
+
+    .article-body .info-box .title {
+      font-weight: 600;
+      color: #2196F3;
+      margin-bottom: 6px;
+      text-indent: 0;
+    }
+
+    .article-body .info-box p {
+      text-indent: 0;
+      margin-bottom: 0;
+    }
+
+    .article-body table {
+      border-collapse: collapse;
+      margin: 18px auto;
+      font-size: 15px;
+    }
+
+    .article-body table td, .article-body table th {
+      border: 1px solid #d0d0d0;
+      padding: 6px 12px;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    .article-body table th {
+      background: #f0f2f5;
+      font-weight: 600;
+    }
+
+    .article-body .example {
+      background: #fef9e7;
+      border: 1px solid #f9e79f;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 18px;
+      font-family: "Courier New", monospace;
+      font-size: 15px;
+    }
+
+    .article-body .example .label {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-weight: 600;
+      color: #b7950b;
+      margin-bottom: 6px;
+      text-indent: 0;
+    }
+
+    .article-footer {
+      padding: 16px 32px 24px;
+      border-top: 1px solid #f0f0f0;
+      font-size: 12px;
+      color: #bbb;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="article">
+    <div class="article-header">
+      <div class="source">🔗 科普中国 · 密码学专栏</div>
+      <h1>波比奥斯方阵：棋盘上的密码艺术</h1>
+      <div class="meta">2026年3月12日 · 阅读约 3 分钟</div>
+    </div>
+
+    <div class="article-body">
+      <p>波比奥斯方阵（Polybius Square），又称棋盘密码，是一种古典密码学中的经典加密方式。它由古希腊历史学家波比奥斯（Polybius）在其著作《通史》中首次记载，最初用于希腊军队的远距离通信。</p>
+
+      <div class="info-box">
+        <div class="title">💡 什么是波比奥斯方阵？</div>
+        <p>它将字母排列在一个 5×5（或 6×6）的网格中，每个字母对应一个坐标（行号和列号）。发送方将字母转换为坐标数字，接收方用同样的网格将数字还原为字母。</p>
+      </div>
+
+      <p>一个标准的 5×5 波比奥斯方阵如下所示（I 和 J 共用一格）：</p>
+
+      <table>
+        <tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr>
+        <tr><th>1</th><td>A</td><td>B</td><td>C</td><td>D</td><td>E</td></tr>
+        <tr><th>2</th><td>F</td><td>G</td><td>H</td><td>I/J</td><td>K</td></tr>
+        <tr><th>3</th><td>L</td><td>M</td><td>N</td><td>O</td><td>P</td></tr>
+        <tr><th>4</th><td>Q</td><td>R</td><td>S</td><td>T</td><td>U</td></tr>
+        <tr><th>5</th><td>V</td><td>W</td><td>X</td><td>Y</td><td>Z</td></tr>
+      </table>
+
+      <p>加密时，将每个字母替换为它的坐标。例如 "HELLO"：</p>
+
+      <div class="example">
+        <div class="label">📝 加密示例</div>
+        <div>H → 23,  E → 15,  L → 31,  L → 31,  O → 34</div>
+        <div style="margin-top:8px;color:#666;">密文：23 15 31 31 34</div>
+      </div>
+
+      <p>解密时只需反向操作：根据数字坐标在方阵中找到对应字母即可。虽然这种加密方式在当代计算机密码学面前不堪一击，但在两千多年前，它已经是一种相当精妙的通信保密手段了。</p>
+
+      <p>值得一提的是，波比奥斯方阵的思想启发了后来的多种密码学设计，包括著名的 ADFGVX 密码以及现代密码学中的二进制编码概念。棋盘式的坐标映射方法，至今仍在各种编码方案中延续着生命力。</p>
+    </div>
+
+    <div class="article-footer">
+      文章来源：科普中国 · 密码学专栏
+    </div>
+  </div>
+
+  <script>
+    GameState.init();
+  </script>
+</body>
+</html>

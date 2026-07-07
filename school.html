@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>犀牛中学 · 官方网站</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/game-state.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px 16px 60px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .container {
+      max-width: 900px;
+      width: 100%;
+    }
+
+    /* ===== 顶部横幅 ===== */
+    .hero {
+      background: linear-gradient(135deg, #1a5276, #2e86c1);
+      border-radius: 16px 16px 0 0;
+      padding: 40px 36px 28px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: '🦏';
+      position: absolute;
+      right: 30px;
+      bottom: 10px;
+      font-size: 80px;
+      opacity: 0.15;
+    }
+
+    .hero .school-name {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 4px;
+      margin-bottom: 6px;
+    }
+
+    .hero .school-en {
+      font-size: 13px;
+      opacity: 0.7;
+      letter-spacing: 2px;
+    }
+
+    .hero .school-motto {
+      margin-top: 14px;
+      font-size: 15px;
+      opacity: 0.9;
+      border-left: 3px solid rgba(255,255,255,0.5);
+      padding-left: 14px;
+    }
+
+    /* ===== 导航 ===== */
+    .nav-bar {
+      background: #fff;
+      padding: 0 24px;
+      display: flex;
+      gap: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .nav-bar .nav-item {
+      padding: 14px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #555;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .nav-bar .nav-item:hover {
+      color: #1a5276;
+      border-bottom-color: #2e86c1;
+      background: #f8f9fa;
+    }
+
+    .nav-bar .nav-item.active {
+      color: #1a5276;
+      border-bottom-color: #2e86c1;
+    }
+
+    /* ===== 内容区 ===== */
+    .content {
+      background: #fff;
+      border-radius: 0 0 16px 16px;
+      padding: 28px 32px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .section {
+      display: none;
+    }
+
+    .section.active {
+      display: block;
+      animation: fadeIn 0.4s ease;
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a5276;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e8eaed;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title .badge {
+      font-size: 12px;
+      color: #fff;
+      background: #2e86c1;
+      padding: 2px 10px;
+      border-radius: 10px;
+      font-weight: 400;
+    }
+
+    /* ===== 学校简介 ===== */
+    .intro-text {
+      font-size: 14px;
+      color: #555;
+      line-height: 2;
+      margin-bottom: 16px;
+    }
+
+    .intro-text strong {
+      color: #333;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .stat-card {
+      background: #f8f9fc;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-card .num {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2e86c1;
+    }
+
+    .stat-card .label {
+      font-size: 12px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    /* ===== 违纪处分 ===== */
+    .penalty-item {
+      padding: 16px 0;
+      border-bottom: 1px solid #f0f2f5;
+    }
+
+    .penalty-item:last-child {
+      border-bottom: none;
+    }
+
+    .penalty-item .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    .penalty-item .header .tag {
+      font-size: 11px;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+
+    .penalty-item .header .tag.red {
+      background: #fde8e8;
+      color: #e74c3c;
+    }
+
+    .penalty-item .header .tag.yellow {
+      background: #fef9e7;
+      color: #f39c12;
+    }
+
+    .penalty-item .header .name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .penalty-item .header .class {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .penalty-item .desc {
+      font-size: 13px;
+      color: #666;
+      line-height: 1.7;
+      padding-left: 0;
+    }
+
+    .penalty-item .desc .highlight {
+      color: #e74c3c;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border-bottom: 1px dashed #e74c3c;
+    }
+
+    .penalty-item .desc .highlight:hover {
+      border-bottom-style: solid;
+    }
+
+    .penalty-item .date {
+      font-size: 11px;
+      color: #bbb;
+      margin-top: 6px;
+    }
+
+    /* ===== 校园通知 ===== */
+    .notice-item {
+      padding: 14px 0;
+      border-bottom: 1px solid #f0f2f5;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .notice-item:last-child {
+      border-bottom: none;
+    }
+
+    .notice-item .icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: #eaf2f8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .notice-item .info {
+      flex: 1;
+    }
+
+    .notice-item .info .title {
+      font-size: 14px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .notice-item .info .title a {
+      color: #333;
+      text-decoration: none;
+    }
+
+    .notice-item .info .title a:hover {
+      color: #2e86c1;
+    }
+
+    .notice-item .info .meta {
+      font-size: 11px;
+      color: #bbb;
+      margin-top: 4px;
+    }
+
+    .notice-item .tag-new {
+      font-size: 10px;
+      color: #e74c3c;
+      border: 1px solid #e74c3c;
+      border-radius: 3px;
+      padding: 1px 6px;
+      flex-shrink: 0;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: #bbb;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 顶部 -->
+    <div class="hero">
+      <div class="school-name">🦏 犀牛中学</div>
+      <div class="school-en">XINIU MIDDLE SCHOOL</div>
+      <div class="school-motto">「 脚踏实地，仰望星空 」</div>
+    </div>
+
+    <!-- 导航 -->
+    <div class="nav-bar">
+      <div class="nav-item active" onclick="switchSection('intro')">🏫 学校简介</div>
+      <div class="nav-item" onclick="switchSection('notice')">📢 校园通知</div>
+      <div class="nav-item" onclick="switchSection('penalty')">⚠️ 违纪处分</div>
+    </div>
+
+    <!-- 内容 -->
+    <div class="content">
+      <!-- ===== 学校简介 ===== -->
+      <div class="section active" id="sec-intro">
+        <div class="section-title">🏫 学校简介 <span class="badge">公办初中</span></div>
+        <div class="intro-text">
+          <strong>犀牛中学</strong>创办于2004年，是一所全日制公办初级中学，现有教学班24个，在校学生1000余人，教职工90人。学校占地面积约2.3万平方米，拥有现代化教学楼、综合实验楼、标准田径场及多功能报告厅。<br><br>
+          学校坚持"以生为本，全面发展"的办学理念，注重学生综合素质培养，开设了文学社、科技创新、艺术团等20余个学生社团。近年来，学校在中考升学率、学科竞赛等方面均取得优异成绩，先后荣获"市级文明校园""教育教学先进单位"等荣誉称号。<br><br>
+          犀牛中学秉持"严谨、求实、进取"的校训，致力于为每一位学生的成长提供优质的教育环境。
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card"><div class="num">2004</div><div class="label">建校年份</div></div>
+          <div class="stat-card"><div class="num">24</div><div class="label">教学班</div></div>
+          <div class="stat-card"><div class="num">1000+</div><div class="label">在校学生</div></div>
+          <div class="stat-card"><div class="num">90</div><div class="label">教职工</div></div>
+        </div>
+      </div>
+
+      <!-- ===== 校园通知 ===== -->
+      <div class="section active" id="sec-notice">
+        <div class="section-title">📢 校园通知</div>
+
+        <div class="notice-item">
+          <div class="icon">📅</div>
+          <div class="info">
+            <div class="title"><a href="#">关于2026年中考送考安排的通知</a></div>
+            <div class="meta">教导处 · 2026年6月25日</div>
+          </div>
+          <span class="tag-new">NEW</span>
+        </div>
+
+        <div class="notice-item">
+          <div class="icon">🏆</div>
+          <div class="info">
+            <div class="title"><a href="#">2026年春季学期优秀学生表彰名单公示</a></div>
+            <div class="meta">政教处 · 2026年6月5日</div>
+          </div>
+        </div>
+
+        <div class="notice-item">
+          <div class="icon">⚠️</div>
+          <div class="info">
+            <div class="title"><a href="#">关于加强学生手机管理致家长的一封信</a></div>
+            <div class="meta">德育处 · 2026年5月28日</div>
+          </div>
+        </div>
+
+        <div class="notice-item">
+          <div class="icon">🎨</div>
+          <div class="info">
+            <div class="title"><a href="#">犀牛中学第十届校园文化艺术节活动方案</a></div>
+            <div class="meta">团委 · 2026年5月15日</div>
+          </div>
+        </div>
+
+        <div class="notice-item">
+          <div class="icon">📋</div>
+          <div class="info">
+            <div class="title"><a href="#">2026年秋季新生入学报名公告</a></div>
+            <div class="meta">招生办 · 2026年5月8日</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== 违纪处分 ===== -->
+      <div class="section" id="sec-penalty">
+        <div class="section-title">⚠️ 违纪处分记录</div>
+
+        <div class="penalty-item">
+          <div class="header">
+            <span class="tag yellow">警告</span>
+            <span class="name"><a href="xiewen.html" target="_blank" style="color:#333;text-decoration:none;border-bottom:1px dashed #2e86c1;">谢雯</a></span>
+            <span class="class">初三(7)班</span>
+          </div>
+          <div class="desc">
+            2026年6月21日，该生在上课期间屡次偷玩手机，经多次劝导仍不改正，违反学校手机管理规定。给予警告处分。
+          </div>
+          <div class="date">处分日期：2026年6月21日</div>
+        </div>
+
+        <div class="penalty-item">
+          <div class="header">
+            <span class="tag red">严重警告</span>
+            <span class="name">张某某</span>
+            <span class="class">初三(2)班</span>
+          </div>
+          <div class="desc">
+            2026年3月，该生在实验楼天台吸烟、聚众闹事，且拒不配合值日教师调查，态度恶劣。经政教处处分会议研究决定，给予严重警告处分，记入学生档案。
+          </div>
+          <div class="date">处分日期：2026年3月18日</div>
+        </div>
+
+        <div class="penalty-item">
+          <div class="header">
+            <span class="tag yellow">记过</span>
+            <span class="name">李某</span>
+            <span class="class">初三(5)班</span>
+          </div>
+          <div class="desc">
+            2026年4月，该生在考试中携带手机作弊，违反学校考试纪律。给予记过处分，该科目成绩作废。
+          </div>
+          <div class="date">处分日期：2026年4月22日</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">© 2026 犀牛中学 · 官方网站  |  地址：犀牛市育才路66号</div>
+  </div>
+
+  <script>
+    GameState.init();
+
+    function switchSection(id) {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelector('.nav-item[onclick*="' + id + '"]').classList.add('active');
+      document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+      document.getElementById('sec-' + id).classList.add('active');
+    }
+  </script>
+</body>
+</html>

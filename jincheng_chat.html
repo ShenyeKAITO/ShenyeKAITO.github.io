@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>烬城 · 消失的对皮？</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/game-state.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background: #1e1e2e;
+      font-family: var(--font-main);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .window-frame {
+      width: 100%;
+      max-width: 780px;
+      height: 100vh;
+      max-height: 700px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 60px rgba(0,0,0,0.5);
+    }
+
+    .header {
+      background: #12121a;
+      padding: 12px 16px;
+      border-bottom: 1px solid #2a2a3a;
+      flex-shrink: 0;
+    }
+
+    .header .group-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #e8d5a3;
+    }
+
+    .header .group-sub {
+      font-size: 12px;
+      color: #666;
+      margin-top: 2px;
+    }
+
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 14px;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message-row {
+      display: flex;
+      margin-bottom: 16px;
+      animation: msgIn 0.3s ease-out;
+      max-width: 100%;
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-row.received { justify-content: flex-start; }
+    .message-row.sent { justify-content: flex-end; }
+
+    .msg-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .msg-avatar.my-avatar {
+      background-image: url('shared/my-avatar.jpg');
+      background-size: cover;
+      background-position: center;
+      font-size: 0;
+    }
+
+    .message-row.received .msg-avatar { margin-right: 8px; }
+    .message-row.sent .msg-avatar { margin-left: 8px; order: 1; }
+
+    .date-label {
+      text-align: center;
+      font-size: 12px;
+      color: #b0b0b0;
+      margin: 12px 0;
+    }
+
+    .date-label span {
+      background: #e8e8e8;
+      padding: 3px 14px;
+      border-radius: 10px;
+      font-size: 11px;
+    }
+
+    .msg-sender-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #888;
+      margin-bottom: 3px;
+      padding-left: 4px;
+    }
+
+    .msg-content {
+      display: flex;
+      flex-direction: column;
+      max-width: 80%;
+    }
+
+    .message-row.sent .msg-content { align-items: flex-end; }
+    .message-row.received .msg-content { align-items: flex-start; }
+
+    .bubble {
+      padding: 10px 16px;
+      border-radius: 16px;
+      font-size: 15px;
+      line-height: 1.6;
+      word-break: break-word;
+      position: relative;
+    }
+
+    .message-row.received .bubble {
+      background: #fff;
+      color: #333;
+      border-bottom-left-radius: 4px;
+    }
+
+    .message-row.sent .bubble {
+      background: #c6e6f7;
+      color: #333;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-input-bar {
+      background: #fff;
+      border-top: 1px solid #e0e0e0;
+      padding: 10px 16px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-input-bar input {
+      flex: 1;
+      padding: 10px 16px;
+      border: 1px solid #d0d0d0;
+      border-radius: 20px;
+      font-size: 14px;
+      font-family: var(--font-main);
+      outline: none;
+      background: #f8f8f8;
+      cursor: text;
+    }
+
+    .chat-input-bar input::placeholder { color: #bbb; }
+
+    .chat-input-bar .send-btn {
+      padding: 8px 22px;
+      background: #ddd;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      font-family: var(--font-main);
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="window-frame">
+    <div class="header">
+      <div class="group-name">烬城</div>
+      <div class="group-sub">ABO世界观 · 新群初开</div>
+    </div>
+
+    <div class="chat-area">
+      <!-- 历史记录日期 -->
+      <div class="date-label"><span>6月10日</span></div>
+
+      <!-- 群主公告 -->
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#e8d5a3;color:#12121a;font-size:14px;">王</div>
+        <div class="msg-content">
+          <div class="msg-sender-label">群主-王</div>
+          <div class="bubble">📋 群规<br><br>
+            欢迎来到烬城。<br><br>
+            ▎关于世界观<br>
+            档案馆里旧地图写着古老文字，但没人读得懂，大家只叫它烬城。<br>
+            北区在上面，南区在下面，最底下是下水道。<br>
+            议会卫队的制服是深蓝的——看到蓝色，跑。<br><br>
+            ▎关于设定<br>
+            #无审无设 #现原blc #禁反串 #婉拒三个月亮以下 #拒白 #可1vn #不禁黑职 #高职有审<br><br>
+            ▎关于你<br>
+            ⚠️ 卡皮下女18+，不要谎报年龄！被查出全平台拉黑。<br><br>
+            ▎其他<br>
+            进了群就是一家人，好好玩，别搞事。
+          </div>
+        </div>
+      </div>
+
+      <!-- 群友回复 -->
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#6c5ce7;">M</div>
+        <div class="msg-content">
+          <div class="msg-sender-label">M</div>
+          <div class="bubble">收到👌</div>
+        </div>
+      </div>
+
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#00b894;">L</div>
+        <div class="msg-content">
+          <div class="msg-sender-label">L</div>
+          <div class="bubble">南区报道🙋‍♂️</div>
+        </div>
+      </div>
+
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#e17055;">柒</div>
+        <div class="msg-content">
+          <div class="msg-sender-label">柒</div>
+          <div class="bubble">蹲几个北区的搭子</div>
+        </div>
+      </div>
+
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#0984e3;">眠</div>
+        <div class="msg-content">
+          <div class="msg-sender-label">眠</div>
+          <div class="bubble">北区A路过，南区的水流上来没有啊</div>
+        </div>
+      </div>
+
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#fdcb6e;color:#333;">鱼</div>
+        <div class="msg-content">
+          <div class="msg-sender-label">鱼</div>
+          <div class="bubble">下水道来人dd 咱们底下也有底下的玩法</div>
+        </div>
+      </div>
+
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#a29bfe;">白</div>
+        <div class="msg-content">
+          <div class="msg-sender-label">白</div>
+          <div class="bubble">有没有人一起组队去北区偷议会的档案？</div>
+        </div>
+      </div>
+
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#fab1a0;color:#333;">崽</div>
+        <div class="msg-content">
+          <div class="msg-sender-label">崽</div>
+          <div class="bubble">偷档案+1 我负责望风</div>
+        </div>
+      </div>
+
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#636e72;">鸦</div>
+        <div class="msg-content">
+          <div class="msg-sender-label">鸦</div>
+          <div class="bubble">新来的记得看群规，别踩雷</div>
+        </div>
+      </div>
+
+      <!-- 日期：入群 -->
+      <div class="date-label"><span>欢迎入群</span></div>
+
+      <!-- 系统消息 -->
+      <div style="text-align:center;font-size:12px;color:#999;margin:8px 0 16px;">你已加入群聊，和群友们打个招呼吧～</div>
+    </div>
+
+    <div class="chat-input-bar">
+      <input type="text" id="chatInput" placeholder="输入消息..." autocomplete="off">
+      <button class="send-btn" id="sendBtn" disabled>发送</button>
+    </div>
+  </div>
+
+  <script>
+    GameState.init();
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.addEventListener('click', function(e) { e.preventDefault(); });
+    document.getElementById('chatInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') e.preventDefault();
+    });
+  </script>
+</body>
+</html>

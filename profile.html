@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>谢砚的个人资料 · 消失的对皮？</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/game-state.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 30px 16px 50px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .profile-card {
+      max-width: 500px;
+      width: 100%;
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ===== 离线标记 ===== */
+    .offline-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      font-size: 11px;
+      padding: 4px 12px;
+      border-radius: 10px;
+      z-index: 5;
+      backdrop-filter: blur(4px);
+    }
+
+    /* ===== 封面 ===== */
+    .cover-section {
+      position: relative;
+      width: 100%;
+      height: 200px;
+      background: url('3.jpg') center 35% / cover no-repeat;
+    }
+
+    .cover-section::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 120px;
+      background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.45));
+      pointer-events: none;
+    }
+
+    /* ===== 头像 ===== */
+    .avatar-wrapper {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      justify-content: center;
+      margin-top: -52px;
+    }
+
+    .avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border: 4px solid #ffffff;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+      background-size: cover;
+      background-position: center;
+      background-image: url('shared/avatar.png');
+      transition: transform 0.25s ease;
+      cursor: pointer;
+    }
+
+    .avatar:hover {
+      transform: scale(1.06);
+    }
+
+    /* ===== 基本信息 ===== */
+    .info-section {
+      text-align: center;
+      padding: 14px 24px 0;
+    }
+
+    .info-name-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .nickname {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .offline-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #b0b0b0;
+      margin-right: 3px;
+    }
+
+    .status-text {
+      font-size: 12px;
+      color: #b0b0b0;
+      font-weight: 400;
+    }
+
+    .qq-number {
+      font-size: 13px;
+      color: #999;
+      margin-top: 4px;
+    }
+
+    /* ===== 个性签名 ===== */
+    .signature-section {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 10px;
+      padding: 0 24px;
+    }
+
+    .signature-text {
+      font-size: 14px;
+      color: #666;
+      font-style: italic;
+      cursor: pointer;
+      transition: color 0.2s;
+    }
+    .signature-text:hover {
+      color: #2196F3;
+    }
+
+    .signature-text::before {
+      content: '「';
+      color: #ccc;
+      font-size: 16px;
+    }
+
+    .signature-text::after {
+      content: '」';
+      color: #ccc;
+      font-size: 16px;
+    }
+
+    /* ===== 统计 ===== */
+    .stats-section {
+      display: flex;
+      justify-content: center;
+      margin: 16px 24px 0;
+      padding: 14px 0;
+      border-top: 1px solid #f0f2f5;
+      border-bottom: 1px solid #f0f2f5;
+    }
+
+    .stat-item {
+      flex: 1;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .stat-item + .stat-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 10%;
+      height: 80%;
+      width: 1px;
+      background: #f0f2f5;
+    }
+
+    .stat-number {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    /* ===== 详细资料 ===== */
+    .detail-section {
+      padding: 16px 24px 0;
+    }
+
+    .detail-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 16px;
+    }
+
+    .detail-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #555;
+      padding: 6px 0;
+    }
+
+    .detail-item .label {
+      color: #999;
+      flex-shrink: 0;
+    }
+
+    .detail-item .value {
+      color: #333;
+    }
+
+    /* ===== 兴趣标签 ===== */
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f0f2f5;
+    }
+
+    .tag {
+      display: inline-block;
+      background: #f0f8f4;
+      color: #07C160;
+      font-size: 12px;
+      padding: 3px 12px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    /* ===== 共同好友/群 ===== */
+    .common-section {
+      padding: 16px 24px 0;
+    }
+
+    .common-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid #f0f2f5;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .common-item:last-child {
+      border-bottom: none;
+    }
+
+    .common-item .icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .common-item .icon.groups {
+      background: #e8f5e9;
+    }
+
+    .common-item .icon.friends {
+      background: #e3f2fd;
+    }
+
+    .common-item .info {
+      flex: 1;
+    }
+
+    .common-item .info .name {
+      font-size: 13px;
+      color: #333;
+    }
+
+    .common-item .info .sub {
+      font-size: 11px;
+      color: #bbb;
+    }
+
+    /* ===== 底部按钮 ===== */
+    .btn-section {
+      padding: 16px 24px 24px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 11px 0;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      font-family: inherit;
+      text-align: center;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: #2196F3;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #1976D2;
+    }
+
+    .btn-primary:disabled {
+      background: #ddd;
+      color: #fff;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: #f0f2f5;
+      color: #333;
+    }
+
+    .btn-secondary:hover {
+      background: #e4e6eb;
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 0; }
+      .cover-section { height: 180px; }
+      .detail-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="profile-card">
+
+    <!-- 离线标记 -->
+    <div class="offline-badge">⛔ 已离线</div>
+
+    <!-- 封面（深色渐变，无背景图——对方未设置空间封面） -->
+    <div class="cover-section"></div>
+
+    <!-- 头像 -->
+    <div class="avatar-wrapper">
+      <div class="avatar"></div>
+    </div>
+
+    <!-- 基本信息 -->
+    <div class="info-section">
+      <div class="info-name-row">
+        <span class="nickname">谢砚</span>
+        <span style="display:flex;align-items:center;gap:2px;font-size:12px;color:#b0b0b0;">
+          <span class="offline-dot"></span>
+          离线
+        </span>
+      </div>
+      <div class="qq-number" id="qqNumber">QQ：3048627159037</div>
+    </div>
+
+    <!-- 个性签名 -->
+    <div class="signature-section">
+      <span class="signature-text" id="signatureText" onclick="window.open('xieyan_signatures.html', '_blank')">這裡放簽名</span>
+    </div>
+
+    <!-- 统计 -->
+    <div class="stats-section">
+      <div class="stat-item">
+        <div class="stat-number" id="statVisits">0</div>
+        <div class="stat-label">空间访问</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number" id="statLikes">0</div>
+        <div class="stat-label">获赞</div>
+      </div>
+    </div>
+
+    <!-- 详细资料 -->
+    <div class="detail-section">
+      <div class="detail-section-title">详细资料</div>
+      <div class="detail-grid">
+        <div class="detail-item">
+          <span class="label">性别</span>
+          <span class="value" id="detailGender">这里填性别</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">生日</span>
+          <span class="value" id="detailBirthday">这里填生日</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">年龄</span>
+          <span class="value" id="detailAge">这里填年龄</span>
+        </div>
+        <div class="detail-item">
+          <span class="label">所在地</span>
+          <span class="value" id="detailLocation">这里填所在地</span>
+        </div>
+      </div>
+
+      <div class="tags-row" id="tagsContainer">
+        <!-- 标签由 js 填充 -->
+      </div>
+    </div>
+
+    <!-- 共同群聊 -->
+    <div class="common-section">
+      <div class="detail-section-title">共同点</div>
+      <div class="common-item">
+        <div class="icon groups">👥</div>
+        <div class="info">
+          <div class="name" id="commonGroup">这里填共同群聊</div>
+          <div class="sub">1个共同群聊</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 底部按钮 -->
+    <div class="btn-section">
+      <button class="btn btn-secondary" onclick="window.open('chat_private.html', '_blank')">💬 发消息</button>
+      <button class="btn btn-primary" id="qzoneBtn" onclick="window.open('qzone.html', '_blank')">📱 进空间</button>
+    </div>
+  </div>
+
+  <script>
+    GameState.init();
+
+    // ===== 由你来填以下内容 =====
+    const PROFILE_DATA = {
+      // 基本信息
+      qq: '3048627159037',
+
+      // 个性签名
+      signature: '或是沙灘裡的碎石和人生',
+
+      // 统计数据
+      visits: '30w+',
+      likes: '60w+',
+
+      // 详细资料
+      gender: '女',
+      birthday: '5月8日',
+      age: '24',
+      location: '海城·临港区',
+
+      // 标签
+      tags: ['夜行性动物', '人类观察', '偶尔写诗', '社畜'],
+
+      // 共同点
+      commonGroup: 'BLC万能局',
+    };
+
+    // 填充页面
+    function fillProfile(data) {
+      document.getElementById('qqNumber').textContent = 'QQ：' + data.qq;
+      document.getElementById('signatureText').textContent = data.signature;
+
+      document.getElementById('statVisits').textContent = data.visits;
+      document.getElementById('statLikes').textContent = data.likes;
+
+      document.getElementById('detailGender').textContent = data.gender;
+      document.getElementById('detailBirthday').textContent = data.birthday;
+      document.getElementById('detailAge').textContent = data.age;
+      document.getElementById('detailLocation').textContent = data.location;
+
+      // 填充标签
+      const container = document.getElementById('tagsContainer');
+      container.innerHTML = '';
+      data.tags.forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'tag';
+        span.textContent = t;
+        container.appendChild(span);
+      });
+
+      document.getElementById('commonGroup').textContent = data.commonGroup;
+    }
+
+    fillProfile(PROFILE_DATA);
+  </script>
+</body>
+</html>

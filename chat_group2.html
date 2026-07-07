@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BLC万能局 · 消失的对皮？</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/game-state.js"></script>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background: #1e1e2e;
+      font-family: var(--font-main);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .window-frame {
+      width: 100%;
+      max-width: 780px;
+      height: 100vh;
+      max-height: 700px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 60px rgba(0,0,0,0.5);
+    }
+
+    .header {
+      background: #fff;
+      padding: 12px 16px;
+      border-bottom: 1px solid #e0e0e0;
+      flex-shrink: 0;
+    }
+
+    .header .group-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .header .group-sub {
+      font-size: 12px;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 14px;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .message-row {
+      display: flex;
+      margin-bottom: 16px;
+      animation: msgIn 0.3s ease-out;
+      max-width: 100%;
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-row.received { justify-content: flex-start; }
+    .message-row.sent { justify-content: flex-end; }
+
+    .msg-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .msg-avatar.my-avatar {
+      background-image: url('shared/my-avatar.jpg');
+      background-size: cover;
+      background-position: center;
+      font-size: 0;
+    }
+
+    .message-row.received .msg-avatar { margin-right: 8px; }
+    .message-row.sent .msg-avatar { margin-left: 8px; order: 1; }
+
+    .date-label {
+      text-align: center;
+      font-size: 12px;
+      color: #b0b0b0;
+      margin: 12px 0;
+    }
+
+    .date-label span {
+      background: #e8e8e8;
+      padding: 3px 14px;
+      border-radius: 10px;
+      font-size: 11px;
+    }
+
+    .msg-sender-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #888;
+      margin-bottom: 3px;
+      padding-left: 4px;
+    }
+
+    .msg-content {
+      display: flex;
+      flex-direction: column;
+      max-width: 80%;
+    }
+
+    .message-row.sent .msg-content { align-items: flex-end; }
+    .message-row.received .msg-content { align-items: flex-start; }
+
+    .bubble {
+      padding: 10px 16px;
+      border-radius: 16px;
+      font-size: 15px;
+      line-height: 1.6;
+      word-break: break-word;
+      position: relative;
+    }
+
+    .message-row.received .bubble {
+      background: #fff;
+      color: #333;
+      border-bottom-left-radius: 4px;
+    }
+
+    .message-row.sent .bubble {
+      background: #c6e6f7;
+      color: #333;
+      border-bottom-right-radius: 4px;
+    }
+
+    /* ===== 底部输入区 ===== */
+    .chat-input-bar {
+      background: #fff;
+      border-top: 1px solid #e0e0e0;
+      padding: 10px 16px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-input-bar input {
+      flex: 1;
+      padding: 10px 16px;
+      border: 1px solid #d0d0d0;
+      border-radius: 20px;
+      font-size: 14px;
+      font-family: var(--font-main);
+      outline: none;
+      background: #f8f8f8;
+      cursor: text;
+    }
+
+    .chat-input-bar input::placeholder { color: #bbb; }
+
+    .chat-input-bar .send-btn {
+      padding: 8px 22px;
+      background: #ddd;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      font-family: var(--font-main);
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="window-frame">
+    <div class="header">
+      <div class="group-name">BLC万能局</div>
+      <div class="group-sub">1999人 · 语擦交流群</div>
+    </div>
+
+    <div class="chat-area">
+      <!-- 日期 -->
+      <div class="date-label"><span>6月10日</span></div>
+
+      <!-- 代发A -->
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#e17055;"></div>
+        <div class="msg-content">
+          <div class="msg-sender-label">代发A</div>
+          <div class="bubble">查。【饮血崖】三挂一铁组仅限blc<br><br>血浸征袍同饮刃，崖巅观月共埋魂。<br>组内功能不限于查卡、搭卡、聊天、游戏、混群<br>卡皮下女18+微滤卡。审卡没过不是你卡不好，只是我们不搭。<br>婉拒blx秒退/高负能/白/内销/小团体/瓜主<br>15人锁群不再加人，我们幸福一下吧！<br>传送门:XXXXXX<br>进不去找：xxxxxx</div>
+        </div>
+      </div>
+
+      <!-- 群友B -->
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#fdcb6e;"></div>
+        <div class="msg-content">
+          <div class="msg-sender-label">群友B</div>
+          <div class="bubble">查。找暧昧</div>
+        </div>
+      </div>
+
+      <!-- 群友C -->
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#0984e3;"></div>
+        <div class="msg-content">
+          <div class="msg-sender-label">群友C</div>
+          <div class="bubble">查。有没有人扩列呀～</div>
+        </div>
+      </div>
+
+      <!-- 代发C -->
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#fd79a8;"></div>
+        <div class="msg-content">
+          <div class="msg-sender-label">代发C</div>
+          <div class="bubble">818<br><br>千里奔现，你却为了几个小样和我大打出手？<br><br>苦主：小A<br>苦主和瓜人网恋四个月，终于攒够钱去找瓜人奔现，进酒店翻云覆雨了一番，当时苦主已经有点生气了，因为她技术很差，突然拿出了一根荧光**，我只能在黑夜里看着发亮的**无助哭泣，终于结束去洗澡时候苦主随意提起一句，这个酒店的沐浴露挺好闻的，想带走一个，但是瓜人说她也想要，苦主本想撒娇说给我吧，没想到瓜人面色一沉，突然抓着苦主的头发来抢夺......我一直在哭，她就冷冷看着我，半夜还让我滚出酒店，我一个人在陌生的城市 就这样被抛下。逃吧挚爱，我们已经不是磨合的关系了，哪怕我向你暴露了我所有的脆弱，你还是这样对我。</div>
+        </div>
+      </div>
+
+      <!-- 群友D -->
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#e17055;"></div>
+        <div class="msg-content">
+          <div class="msg-sender-label">群友D</div>
+          <div class="bubble">查。古风现原都戳我</div>
+        </div>
+      </div>
+
+      <!-- 群友A -->
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#6c5ce7;"></div>
+        <div class="msg-content">
+          <div class="msg-sender-label">群友A</div>
+          <div class="bubble">查。有没有老师会占卜的？想占一占考试运</div>
+        </div>
+      </div>
+
+      <!-- 代发B -->
+      <div class="message-row received">
+        <div class="msg-avatar" style="background:#00b894;"></div>
+        <div class="msg-content">
+          <div class="msg-sender-label">代发B</div>
+          <div class="bubble">查。烬城abo。新群初开。<br><br>档案馆里旧地图写着古老文字，但没人读得懂，大家只叫它烬城。<br>北区在上面。整洁街道，截然有序。空气里飘着一种淡淡的味道，说不清是什么，像消毒水和某种植物的混合体。新来的人总觉得这味道有点空，住久了就闻不出来了。<br>南区在下面。北区的废水从管道里灌下来，汇成条发光的河。河边挤着铁皮和旧厂房，风穿过去的时候带着血腥气。枪声有时响，有时不响，没人会抬头看。<br>最底下是下水道。连南区的人都不愿往那靠。那里什么人都有，墙壁上画满褪色的涂鸦，大部分是骂北区的话。<br>对了，议会卫队的制服是深蓝的。<br>看到蓝色，跑。<br><br>#无审无设#现原blc#禁反串#婉拒三个月亮以下#拒白#可1vn#不禁黑职#高职有审<br>卡皮下女18+不要谎报！被查出全平台拉黑。<br>入市登记处：<a href="jincheng_reg.html" target="_blank" style="color:#2196F3;text-decoration:underline;">382847924782094</a><br>推荐人：A</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-bar">
+      <input type="text" id="chatInput" placeholder="输入消息..." autocomplete="off">
+      <button class="send-btn" id="sendBtn" disabled>发送</button>
+    </div>
+  </div>
+
+  <script>
+    GameState.init();
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.addEventListener('click', function(e) { e.preventDefault(); });
+    document.getElementById('chatInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') e.preventDefault();
+    });
+  </script>
+</body>
+</html>

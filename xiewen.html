@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>谢雯 · 消失的对皮？</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/game-state.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px;
+      animation: fadeIn 0.3s ease;
+      overflow: hidden;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .box {
+      background: #fff;
+      border-radius: 4px;
+      padding: 60px 48px;
+      text-align: center;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+      max-width: 420px;
+      width: 100%;
+      transition: transform 0.8s ease, opacity 0.8s ease;
+    }
+
+    .box .q {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .box input {
+      border: none;
+      border-bottom: 1px solid #ddd;
+      padding: 8px 4px;
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      width: 220px;
+      text-align: center;
+      display: inline-block;
+    }
+
+    .box input:focus {
+      border-bottom-color: #2196F3;
+    }
+
+    .box .btn-row {
+      margin-top: 16px;
+    }
+
+    .box .btn-row button {
+      border: none;
+      background: #2196F3;
+      color: #fff;
+      padding: 8px 32px;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .box .btn-row button:hover {
+      background: #1976d2;
+    }
+
+    .box .error {
+      font-size: 12px;
+      color: #e94560;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .reveal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #f0f2f5;
+      padding: 24px;
+      z-index: 10;
+      overflow-y: auto;
+    }
+
+    .reveal .text {
+      font-size: 24px;
+      color: #444;
+      line-height: 2;
+      text-align: center;
+      max-width: 420px;
+      animation: textUp 1s ease forwards;
+    }
+
+    .reveal .arrow {
+      margin-top: 48px;
+      font-size: 32px;
+      color: #999;
+      cursor: pointer;
+      animation: bounce 1.5s infinite;
+      transition: color 0.2s;
+    }
+
+    .reveal .arrow:hover {
+      color: #2196F3;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(8px); }
+    }
+
+    @keyframes textUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .ending {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 30px;
+      animation: textUp 1s ease forwards;
+      width: 100%;
+      max-width: 480px;
+    }
+
+    .ending .line {
+      font-size: 48px;
+      color: #222;
+      font-weight: 800;
+      line-height: 1.4;
+      text-align: center;
+    }
+
+    .ending .title {
+      font-size: 48px;
+      color: #222;
+      font-weight: 800;
+      line-height: 1.4;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .ending .footer-imgs,
+    .ending .footer-text {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .ending .footer-imgs.show,
+    .ending .footer-text.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .ending .footer-imgs {
+      display: flex;
+      gap: 12px;
+      margin-top: 30px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .ending .footer-imgs img {
+      max-width: 220px;
+      width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .ending .footer-text {
+      font-size: 16px;
+      color: #888;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box" id="mainBox">
+    <div class="q">谢雯是谁？</div>
+    <input id="answerInput" type="text" placeholder="输入答案" autocomplete="off" onkeydown="if(event.key==='Enter')check()">
+    <div class="btn-row">
+      <button onclick="check()">提交</button>
+    </div>
+    <div class="error" id="errorMsg">不对</div>
+  </div>
+
+  <div class="reveal" id="revealBox">
+    <div class="text">你低头看了看日期，今天是6月27日，正是中考开始的第一天。</div>
+    <div class="arrow" id="arrowBtn" onclick="showEnding()">↓</div>
+    <div class="ending" id="endingBox">
+      <div class="title">— 您已通关，达成结局 —</div>
+      <div class="line">我的对皮是中考生 😂</div>
+      <div class="footer-imgs">
+        <img src="9.jpg" alt="9">
+        <img src="10.jpg" alt="10">
+      </div>
+      <div class="footer-text">感谢游玩 · 欢迎关注/扩列~</div>
+    </div>
+  </div>
+
+  <script>
+    GameState.init();
+
+    function check() {
+      const a = document.getElementById('answerInput').value.trim();
+      if (a === '謝硯' || a === '谢砚') {
+        const box = document.getElementById('mainBox');
+        box.style.transform = 'translateY(-60px)';
+        box.style.opacity = '0';
+        setTimeout(() => {
+          document.getElementById('revealBox').style.display = 'flex';
+        }, 600);
+        GameState.addClue('xiewen_answered');
+      } else {
+        document.getElementById('errorMsg').style.display = 'block';
+        document.getElementById('answerInput').focus();
+      }
+    }
+
+    function showEnding() {
+      document.getElementById('arrowBtn').style.display = 'none';
+      document.querySelector('.reveal .text').style.display = 'none';
+      document.getElementById('endingBox').style.display = 'flex';
+      // 1秒后浮现图片和文字
+      setTimeout(() => {
+        document.querySelector('.ending .footer-imgs').classList.add('show');
+        document.querySelector('.ending .footer-text').classList.add('show');
+      }, 2000);
+    }
+  </script>
+</body>
+</html>

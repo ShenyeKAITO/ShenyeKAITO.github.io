@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>一起听 · 网易云音乐</title>
+  <link rel="stylesheet" href="shared/style.css">
+  <script src="shared/game-state.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: #1e1e2e;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .window-frame {
+      width: 100%;
+      max-width: 420px;
+      height: 100vh;
+      max-height: 700px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 8px 60px rgba(0,0,0,0.5);
+    }
+
+    .top-bar {
+      background: #c20c0c;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .top-bar .back {
+      font-size: 16px;
+      color: rgba(255,255,255,0.8);
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .top-bar .title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .top-bar .title .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #1ed14b;
+      display: inline-block;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .top-bar .more {
+      font-size: 16px;
+      color: rgba(255,255,255,0.8);
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    .listening-bar {
+      background: #fff;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .listening-bar .album-cover {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      background: linear-gradient(135deg,#fab1a0,#e17055);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #fff;
+    }
+
+    .listening-bar .song-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .listening-bar .song-info .song-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .listening-bar .song-info .artist {
+      font-size: 12px;
+      color: #999;
+      margin-top: 2px;
+    }
+
+    .listening-bar .tag {
+      font-size: 10px;
+      color: #c20c0c;
+      border: 1px solid #c20c0c;
+      border-radius: 3px;
+      padding: 2px 6px;
+      flex-shrink: 0;
+    }
+
+    .chat-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      background: #f5f5f5;
+    }
+
+    .chat-area .sys-msg {
+      text-align: center;
+      font-size: 12px;
+      color: #b0b0b0;
+      margin-bottom: 16px;
+    }
+
+    .chat-area .sys-msg span {
+      background: #e8e8e8;
+      padding: 3px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+    }
+
+    .message-row {
+      display: flex;
+      margin-bottom: 14px;
+      max-width: 100%;
+      animation: msgIn 0.3s ease-out;
+    }
+
+    @keyframes msgIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message-row.received { justify-content: flex-start; }
+    .message-row.sent { justify-content: flex-end; }
+
+    .msg-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .message-row.received .msg-avatar { margin-right: 8px; }
+    .message-row.sent .msg-avatar { margin-left: 8px; order: 1; }
+
+    .bubble {
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      word-break: break-word;
+      max-width: 80%;
+    }
+
+    .bubble a {
+      color: inherit;
+      text-decoration: underline;
+    }
+
+    .message-row.received .bubble {
+      background: #fff;
+      color: #333;
+      border-bottom-left-radius: 4px;
+    }
+
+    .message-row.sent .bubble {
+      background: #c20c0c;
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-input-bar {
+      background: #fff;
+      border-top: 1px solid #e0e0e0;
+      padding: 10px 16px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-input-bar input {
+      flex: 1;
+      padding: 10px 16px;
+      border: 1px solid #d0d0d0;
+      border-radius: 20px;
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      background: #f8f8f8;
+    }
+
+    .chat-input-bar input::placeholder { color: #bbb; }
+
+    .chat-input-bar .send-btn {
+      padding: 8px 22px;
+      background: #ddd;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      font-size: 14px;
+      font-family: inherit;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="window-frame">
+    <div class="top-bar">
+      <span class="back" onclick="window.close()">‹</span>
+      <span class="title"><span class="dot"></span> 一起听 · Liar</span>
+      <span class="more">⋯</span>
+    </div>
+
+    <div class="listening-bar">
+      <div class="album-cover">▶</div>
+      <div class="song-info">
+        <div class="song-name">Liar</div>
+        <div class="artist">ONE OK ROCK</div>
+      </div>
+      <span class="tag">一起听</span>
+    </div>
+
+    <div class="chat-area" id="chatArea"></div>
+
+    <div class="chat-input-bar">
+      <input type="text" id="chatInput" placeholder="发送歌曲评论…" autocomplete="off">
+      <button class="send-btn" id="sendBtn" disabled>发送</button>
+    </div>
+  </div>
+
+  <script>
+    GameState.init();
+
+    const CONVERSATION = [
+      {
+        date: '现在',
+        messages: [
+          { type: 'received', text: '<a href="school.html" target="_blank">犀牛中学</a>？是吧？' },
+          { type: 'received', text: '你不是跟我说你已经工作了吗？' },
+          { type: 'received', text: '骗子' },
+          { type: 'sent', text: '对不起' },
+          { type: 'system', text: '对方已将你拉黑 ❌ 消息已发出，但被对方拒收。' },
+        ]
+      },
+    ];
+
+    function addMessage(msg) {
+      const area = document.getElementById('chatArea');
+      const row = document.createElement('div');
+
+      if (msg.type === 'system') {
+        const div = document.createElement('div');
+        div.style.cssText = 'text-align:center;font-size:12px;color:#e94560;margin:8px 0;padding:8px 16px;background:#fff;border-radius:8px;border:1px dashed #e0e0e0;';
+        div.textContent = msg.text;
+        document.getElementById('chatArea').appendChild(div);
+        return;
+      }
+
+      row.className = 'message-row ' + (msg.type === 'received' ? 'received' : 'sent');
+      row.style.userSelect = 'text';
+      const isReceived = msg.type === 'received';
+      let html = '';
+      if (isReceived) {
+        html += '<div class="msg-avatar" style="background:url(\'6.png\') center/cover;"></div>';
+      } else {
+        html += '<div class="msg-avatar" style="background:url(\'shared/avatar.png\') center/cover;"></div>';
+      }
+      html += '<div class="bubble">' + msg.text + '</div>';
+      row.innerHTML = html;
+      document.getElementById('chatArea').appendChild(row);
+    }
+
+    function addDateDivider(dateText) {
+      const div = document.createElement('div');
+      div.className = 'sys-msg';
+      div.innerHTML = '<span>' + dateText + '</span>';
+      document.getElementById('chatArea').appendChild(div);
+    }
+
+    for (const day of CONVERSATION) {
+      addDateDivider(day.date);
+      for (const msg of day.messages) {
+        addMessage(msg);
+      }
+    }
+
+    setTimeout(() => { document.getElementById('chatArea').scrollTop = document.getElementById('chatArea').scrollHeight; }, 50);
+
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.addEventListener('click', function(e) { e.preventDefault(); });
+    document.getElementById('chatInput').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') e.preventDefault();
+    });
+  </script>
+</body>
+</html>
