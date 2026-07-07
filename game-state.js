@@ -3,7 +3,7 @@
  * 一个页面发现线索 → 所有页面自动更新
  */
 
-var GameState = {
+window.GameState = {
   // ===== 基础读写 =====
   get(key) {
     try {
@@ -54,7 +54,6 @@ var GameState = {
   },
 
   isPageUnlocked(pageId) {
-    // index 永远可访问
     if (pageId === 'index') return true;
     return (this.get('unlockedPages') || []).includes(pageId);
   },
@@ -88,13 +87,11 @@ var GameState = {
   // ===== 结束检查 =====
   canEnd() {
     const clues = this.get('clues') || [];
-    // 需要至少找到关键线索才能进入结局
     return clues.length >= 1 && this.get('qqLoggedIn');
   },
 
   // ===== 重置 =====
   reset() {
-    // 获取所有 game_ 开头的 key 并删除
     const keys = Object.keys(localStorage);
     keys.forEach(k => {
       if (k.startsWith('game_')) localStorage.removeItem(k);
@@ -113,12 +110,12 @@ var GameState = {
     });
   },
 
-  // ===== 获取游戏通关密码（从线索推断，供子页面使用） =====
+  // ===== 获取游戏通关密码 =====
   setCorrectPassword(pwd) {
     this.set('correctPassword', pwd);
   },
 
-  // ===== 清除 chatFinished 标记（用于跳出卡死的消失页面） =====
+  // ===== 清除 chatFinished 标记 =====
   clearFinished() {
     localStorage.removeItem('game_chatFinished');
   }
